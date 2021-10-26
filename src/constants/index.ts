@@ -17,6 +17,15 @@ export enum COMMANDS {
     help = 'help',
 }
 
+export const BUTTONS: Record<Partial<COMMANDS>, string> = {
+    [COMMANDS.list]: '🗒Показать список',
+    [COMMANDS.addItem]: '➕Добавить',
+    [COMMANDS.deleteItem]: '❌Удалить',
+    [COMMANDS.deleteList]: '🥡Очистить список',
+    [COMMANDS.help]: '/help',
+};
+
+
 export const mainMenuKeyboard = Markup.inlineKeyboard([
     [
         {text: 'Добавить', callback_data: COMMANDS.addItem},
@@ -26,3 +35,14 @@ export const mainMenuKeyboard = Markup.inlineKeyboard([
         {text: 'Очистить список', callback_data: COMMANDS.deleteList},
     ],
 ]);
+
+
+export const mapCommandToButton = (command: COMMANDS): string => BUTTONS[command];
+
+export const keyboard = Markup
+    .keyboard([
+        [mapCommandToButton(COMMANDS.addItem), mapCommandToButton(COMMANDS.deleteItem)],
+        [mapCommandToButton(COMMANDS.list), mapCommandToButton(COMMANDS.deleteList)],
+    ])
+    .oneTime()
+    .resize();

@@ -1,15 +1,21 @@
 import {Telegraf} from 'telegraf';
-import {COMMANDS, mainMenuKeyboard} from './constants';
+import {COMMANDS, keyboard, mapCommandToButton} from './constants';
 import {State, STATES} from './utils/State';
 import {handlers} from './handlers/lists';
 import {client} from './utils/GoogleSpreadsheets';
+import {authMiddleware} from './middlewares';
 
-const bot = new Telegraf(process.env.BOT_TOKEN || '');
+if (!process.env.BOT_TOKEN) {
+    throw new Error('No BOT_TOKEN');
+}
 
-const getDefaultMessage = (name: string) =>
-    name + ', ничего не понятно, воспользуйся /help';
+const bot = new Telegraf(process.env.BOT_TOKEN);
+
+const getDefaultMessage = (name: string) => name + ', ничего не понятно, жми /help';
 
 bot.start((ctx) => ctx.reply('Started bot!'));
+
+bot.use(authMiddleware);
 
 bot.command(COMMANDS.help, handlers.help);
 bot.command(COMMANDS.list, handlers.getList);
@@ -17,11 +23,15 @@ bot.command(COMMANDS.addItem, handlers.addItemStart);
 bot.command(COMMANDS.deleteItem, handlers.deleteItemStart);
 bot.command(COMMANDS.deleteList, handlers.deleteList);
 
+bot.hears(mapCommandToButton(COMMANDS.list), handlers.getList);
+bot.hears(mapCommandToButton(COMMANDS.addItem), handlers.addItemStart);
+bot.hears(mapCommandToButton(COMMANDS.deleteItem), handlers.deleteItemStart);
+bot.hears(mapCommandToButton(COMMANDS.deleteList), handlers.deleteList);
+
 bot.action(COMMANDS.list, handlers.getList);
 bot.action(COMMANDS.addItem, handlers.addItemStart);
 bot.action(COMMANDS.deleteItem, handlers.deleteItemStart);
 bot.action(COMMANDS.deleteList, handlers.deleteList);
-
 
 bot.on('text', (ctx) => {
     const {text, from: {first_name: firstName}} = ctx.message;
@@ -37,7 +47,7 @@ bot.on('text', (ctx) => {
 
         case STATES.none:
         default:
-            ctx.reply(getDefaultMessage(firstName), mainMenuKeyboard);
+            ctx.reply(getDefaultMessage(firstName), keyboard);
     }
 });
 

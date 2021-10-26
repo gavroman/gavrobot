@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "lint:fix": "eslint . --fix",
-    "start": "tsc && env-cmd -f .env node dist/index.js"
+    "compile" : "rm -rf ./dist && tsc",
+    "start": "npm run compile && env-cmd -f .env node dist/index.js",
+    "heroku": "npm run compile && node dist/index.js",
+    "generate_token" : "node ./scripts/generateToken.js"
   },
   "keywords": [],
   "author": "",

@@ -1,6 +1,6 @@
 import {Context} from 'telegraf';
 import {State, STATES} from '../../utils/State';
-import {HELP_COMMANDS, mainMenuKeyboard} from '../../constants';
+import {HELP_COMMANDS, keyboard} from '../../constants';
 import {GSPListStorage} from '../../services/GSPList';
 
 // export const List = new InMemoryListStorage();
@@ -33,13 +33,13 @@ const deleteItem = (ctx: Context, text: string) => {
             handlers.getList(ctx);
         });
     } else {
-        ctx.reply(`Не могу найти элемент с номером "${text}"`, mainMenuKeyboard);
+        ctx.reply(`Не могу найти элемент с номером "${text}"`, keyboard);
     }
 };
 
 const deleteList = (ctx: Context) => {
     List.deleteAll()
-        .then(() => ctx.reply('Все снесено', mainMenuKeyboard));
+        .then(() => ctx.reply('Все снесено', keyboard));
 };
 
 const getList = (ctx: Context) => {
@@ -48,7 +48,7 @@ const getList = (ctx: Context) => {
             list
                 ?.map((item, index) => `${index + 1}) ${item}`)
                 .join('\n') || 'Тут пусто';
-        return ctx.reply(text, mainMenuKeyboard);
+        return ctx.reply(text, keyboard);
     });
 };
 
