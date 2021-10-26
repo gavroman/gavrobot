@@ -13,7 +13,7 @@ const addItemStart = (ctx: Context) => {
 
 const addItem = (ctx: Context, text?: string) => {
     if (text) {
-        List.add(text.split('\n')).then(() => {
+        List.add(text.split('\n').filter(Boolean)).then(() => {
             State.set(STATES.none);
             handlers.getList(ctx);
         });
