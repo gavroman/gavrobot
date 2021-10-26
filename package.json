@@ -14,9 +14,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@googleapis/docs": "^0.2.0",
     "@googleapis/sheets": "^0.3.0",
-    "googleapis": "^89.0.0",
     "telegraf": "^4.4.2"
   },
   "devDependencies": {
