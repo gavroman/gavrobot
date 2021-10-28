@@ -25,18 +25,6 @@ export const BUTTONS: Record<Partial<COMMANDS>, string> = {
     [COMMANDS.help]: '/help',
 };
 
-
-export const mainMenuKeyboard = Markup.inlineKeyboard([
-    [
-        {text: 'Добавить', callback_data: COMMANDS.addItem},
-        {text: 'Удалить', callback_data: COMMANDS.deleteItem},
-    ], [
-        {text: 'Показать список', callback_data: COMMANDS.list},
-        {text: 'Очистить список', callback_data: COMMANDS.deleteList},
-    ],
-]);
-
-
 export const mapCommandToButton = (command: COMMANDS): string => BUTTONS[command];
 
 export const keyboard = Markup

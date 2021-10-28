@@ -3,8 +3,16 @@ import {State, STATES} from '../../utils/State';
 import {HELP_COMMANDS, keyboard} from '../../constants';
 import {GSPListStorage} from '../../services/GSPList';
 
-// export const List = new InMemoryListStorage();
 export const List = new GSPListStorage();
+
+const alignNumber = (length: number, index: number): string => {
+    const maxIndexStringLength = length.toString().length;
+
+    return ' '.repeat(maxIndexStringLength - index.toString().length) + index;
+};
+
+
+const start = (ctx: Context) => ctx.reply('Стартуем!!!', keyboard);
 
 const addItemStart = (ctx: Context) => {
     ctx.reply('Что добавить?')
@@ -13,10 +21,15 @@ const addItemStart = (ctx: Context) => {
 
 const addItem = (ctx: Context, text?: string) => {
     if (text) {
-        List.add(text.split('\n').filter(Boolean)).then(() => {
-            State.set(STATES.none);
-            handlers.getList(ctx);
-        });
+        List.add(
+            text.split('\n')
+                .filter(Boolean)
+                .map((str) => str.charAt(0).toUpperCase() + str.slice(1)),
+        )
+            .then(() => {
+                State.set(STATES.none);
+                handlers.getList(ctx);
+            });
     }
 };
 
@@ -37,24 +50,22 @@ const deleteItem = (ctx: Context, text: string) => {
     }
 };
 
-const deleteList = (ctx: Context) => {
+const deleteList = (ctx: Context) =>
     List.deleteAll()
         .then(() => ctx.reply('Все снесено', keyboard));
-};
 
-const getList = (ctx: Context) => {
+const getList = (ctx: Context) =>
     List.getAll().then((list) => {
-        const text =
-            list
-                ?.map((item, index) => `${index + 1}) ${item}`)
-                .join('\n') || 'Тут пусто';
-        return ctx.reply(text, keyboard);
-    });
-};
+        const text = list
+            ?.map((item, index) => {
+                return `<code>${alignNumber(list.length, index + 1)})</code> ${item}`;
+            })
+            .join('\n') || 'Тут пусто';
 
-const help = (ctx: Context) => {
-    ctx.reply(HELP_COMMANDS.map((str) => `/${str}`).join('\n'));
-};
+        return ctx.reply(text, {...keyboard, parse_mode: 'HTML'});
+    });
+
+const help = (ctx: Context) => ctx.reply(HELP_COMMANDS.map((str) => `/${str}`).join('\n'));
 
 export const handlers = {
     addItemStart,
@@ -64,5 +75,6 @@ export const handlers = {
     help,
     addItem,
     deleteItem,
+    start,
 };
 

@@ -1,8 +1,6 @@
 import {client} from '../utils/GoogleSpreadsheets';
 import {IListStorage} from './interfaces';
 
-export type InsertDataOption = 'INSERT_ROWS' | 'OVERWRITE';
-
 export class GSPListStorage implements IListStorage {
     private readonly spreadsheetId = '1QyXy3TR-yGeSRwofCDJuBEs-WuG2ZyQ_AWNsljnMnks';
     private readonly column = 'A';
@@ -27,7 +25,7 @@ export class GSPListStorage implements IListStorage {
             range,
             insertDataOption: 'INSERT_ROWS',
             valueInputOption: 'USER_ENTERED',
-            requestBody: {values},
+            requestBody: {values, range},
         });
     }
 
@@ -64,4 +62,3 @@ export class GSPListStorage implements IListStorage {
             .then(({data: {values}}) => values?.map((row) => row[0]) || []);
     }
 }
-export const GSPList = new GSPListStorage();
