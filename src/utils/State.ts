@@ -6,12 +6,12 @@ export enum STATES {
 }
 
 class StateManager<T> {
-    constructor(public current: T) {
-    }
+  constructor(public current: T) {
+  }
 
-    public set(state: T) {
-        this.current = state;
-    }
+  public set(state: T) {
+    this.current = state;
+  }
 }
 
 export const State = new StateManager<STATES>(STATES.none);

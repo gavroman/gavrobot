@@ -6,7 +6,7 @@ import {client} from './utils/GoogleSpreadsheets';
 import {authMiddleware} from './middlewares';
 
 if (!process.env.BOT_TOKEN) {
-    throw new Error('No BOT_TOKEN');
+  throw new Error('No BOT_TOKEN');
 }
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
@@ -34,26 +34,26 @@ bot.action(COMMANDS.deleteItem, handlers.deleteItemStart);
 bot.action(COMMANDS.deleteList, handlers.deleteList);
 
 bot.on('text', (ctx) => {
-    const {text, from: {first_name: firstName}} = ctx.message;
+  const {text, from: {first_name: firstName}} = ctx.message;
 
-    switch (State.current) {
-        case STATES.addingItem:
-            handlers.addItem(ctx, text);
-            break;
+  switch (State.current) {
+    case STATES.addingItem:
+      handlers.addItem(ctx, text);
+      break;
 
-        case STATES.deletingItem:
-            handlers.deleteItem(ctx, text);
-            break;
+    case STATES.deletingItem:
+      handlers.deleteItem(ctx, text);
+      break;
 
-        case STATES.none:
-        default:
-            ctx.reply(getDefaultMessage(firstName), keyboard);
-    }
+    case STATES.none:
+    default:
+      ctx.reply(getDefaultMessage(firstName), keyboard);
+  }
 });
 
 client.init()
-    .then(() => bot.launch())
-    .then(() => console.log('Bot start'));
+  .then(() => bot.launch())
+  .then(() => console.log('Bot start'));
 
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
