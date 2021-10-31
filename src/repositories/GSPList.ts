@@ -1,7 +1,6 @@
-import {IListStorage} from '..//repositories/interfaces';
 import {GSPClient} from '../services/GoogleSpreadsheets';
 
-export class GSPListStorage implements IListStorage {
+export class GSPListStorage {
   private readonly spreadsheetId =
     '1QyXy3TR-yGeSRwofCDJuBEs-WuG2ZyQ_AWNsljnMnks';
   private readonly column = 'A';

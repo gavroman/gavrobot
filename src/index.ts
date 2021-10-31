@@ -1,4 +1,4 @@
-import {Telegraf} from 'telegraf';
+import {session, Telegraf} from 'telegraf';
 
 import {COMMANDS, mapCommandToButton} from './constants';
 import {
@@ -10,19 +10,22 @@ import {
   onStart,
   onText,
 } from './handlers/list';
-import {authMiddleware} from './middlewares';
+import {BotContext, SessionData} from './interfaces';
+import {addSessionMiddleware, authMiddleware} from './middlewares';
 import {GSPClient} from './services/GoogleSpreadsheets';
 
 if (!process.env.BOT_TOKEN) {
   throw new Error('No BOT_TOKEN specified');
 }
 
-const bot = new Telegraf(process.env.BOT_TOKEN);
+const bot = new Telegraf<BotContext>(process.env.BOT_TOKEN);
 
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
 
 bot.use(authMiddleware);
+bot.use(session<SessionData>());
+bot.use(addSessionMiddleware);
 
 bot.start(onStart);
 
@@ -36,11 +39,6 @@ bot.hears(mapCommandToButton(COMMANDS.list), onGetList);
 bot.hears(mapCommandToButton(COMMANDS.addItem), onAddItemStart);
 bot.hears(mapCommandToButton(COMMANDS.deleteItem), onDeleteItemStart);
 bot.hears(mapCommandToButton(COMMANDS.deleteList), onDeleteList);
-
-bot.action(COMMANDS.list, onGetList);
-bot.action(COMMANDS.addItem, onAddItemStart);
-bot.action(COMMANDS.deleteItem, onDeleteItemStart);
-bot.action(COMMANDS.deleteList, onDeleteList);
 
 bot.on('text', onText);
 
