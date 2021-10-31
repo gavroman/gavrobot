@@ -1,10 +1,9 @@
-import {Markup} from 'telegraf';
-
 export const HELP_COMMANDS = [
   'start - Начать',
   'list - Текущий список',
-  'add_item - Добавить в текущий список',
-  'delete_item - Удалить из текущего списка',
+  'add_item - Перейти в режим добавления',
+  'delete_item - Перейти в режим удаления',
+  'exit_mode - Выйти из режима удаления/добавления',
   'delete_list - Очистить список',
   'help - Помощь',
 ];
@@ -15,25 +14,5 @@ export enum COMMANDS {
   deleteItem = 'delete_item',
   deleteList = 'delete_list',
   help = 'help',
+  exitMode = 'exit_mode',
 }
-
-export const BUTTONS: Record<Partial<COMMANDS>, string> = {
-  [COMMANDS.list]: '🗒Показать список',
-  [COMMANDS.addItem]: '➕Добавить',
-  [COMMANDS.deleteItem]: '❌Удалить',
-  [COMMANDS.deleteList]: '🥡Очистить список',
-  [COMMANDS.help]: '/help',
-};
-
-export const mapCommandToButton = (command: COMMANDS): string =>
-  BUTTONS[command];
-
-export const keyboard = Markup.keyboard([
-  [
-    mapCommandToButton(COMMANDS.addItem),
-    mapCommandToButton(COMMANDS.deleteItem),
-  ],
-  [mapCommandToButton(COMMANDS.list), mapCommandToButton(COMMANDS.deleteList)],
-])
-  .oneTime()
-  .resize();

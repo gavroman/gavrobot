@@ -1,16 +1,18 @@
 import {session, Telegraf} from 'telegraf';
 
-import {COMMANDS, mapCommandToButton} from './constants';
+import {COMMANDS} from './constants';
 import {
-  onAddItemStart,
-  onDeleteItemStart,
   onDeleteList,
+  onExitMode,
   onGetList,
   onHelp,
   onStart,
+  onStartAdding,
+  onStartDeleting,
   onText,
 } from './handlers/list';
 import {BotContext, SessionData} from './interfaces';
+import {mapCommandToButton} from './keyboards/listKeyboards';
 import {addSessionMiddleware, authMiddleware} from './middlewares';
 import {GSPClient} from './services/GoogleSpreadsheets';
 
@@ -31,13 +33,15 @@ bot.start(onStart);
 
 bot.command(COMMANDS.help, onHelp);
 bot.command(COMMANDS.list, onGetList);
-bot.command(COMMANDS.addItem, onAddItemStart);
-bot.command(COMMANDS.deleteItem, onDeleteItemStart);
+bot.command(COMMANDS.addItem, onStartAdding);
+bot.command(COMMANDS.deleteItem, onStartDeleting);
+bot.command(COMMANDS.exitMode, onExitMode);
 bot.command(COMMANDS.deleteList, onDeleteList);
 
 bot.hears(mapCommandToButton(COMMANDS.list), onGetList);
-bot.hears(mapCommandToButton(COMMANDS.addItem), onAddItemStart);
-bot.hears(mapCommandToButton(COMMANDS.deleteItem), onDeleteItemStart);
+bot.hears(mapCommandToButton(COMMANDS.addItem), onStartAdding);
+bot.hears(mapCommandToButton(COMMANDS.deleteItem), onStartDeleting);
+bot.hears(mapCommandToButton(COMMANDS.exitMode), onExitMode);
 bot.hears(mapCommandToButton(COMMANDS.deleteList), onDeleteList);
 
 bot.on('text', onText);
