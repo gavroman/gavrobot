@@ -1,10 +1,12 @@
-import {HELP_COMMANDS, keyboard} from '../constants';
+import {HELP_COMMANDS} from '../constants';
 import {BotContext} from '../interfaces';
+import {exitFromModeKeyboard, mainKeyboard} from '../keyboards/listKeyboards';
 import {StateManager, STATES} from '../services/State';
 import {listUsecase} from '../usecases/list';
 
 const getDefaultMessage = (name: string) =>
-  name + ', ничего не понятно, жми /help';
+  name +
+  ', тут что-то невнятное, выбери режим добавления/удаления или жми /help';
 
 export const onStart = (ctx: BotContext) => {
   if (!ctx.session?.state) {
@@ -13,21 +15,25 @@ export const onStart = (ctx: BotContext) => {
     };
   }
 
-  return ctx.reply('Стартуем!!!', keyboard);
+  return ctx.reply('Стартуем!!!', mainKeyboard);
 };
 
-export const onAddItemStart = (ctx: BotContext) => {
+export const onStartAdding = (ctx: BotContext) => {
   ctx
-    .reply('Что добавить?')
+    .reply('Что добавить?', exitFromModeKeyboard)
     .then(() => ctx.session?.state.set(STATES.addingItem));
 };
 
-export const onGetList = (ctx: BotContext) =>
-  listUsecase.getList().then((list) => {
-    const text = list || 'Тут пусто';
+export const onGetList = (ctx: BotContext) => {
+  const {current: state} = ctx.session.state;
 
-    return ctx.reply(text, {...keyboard, parse_mode: 'HTML'});
+  return listUsecase.getList().then((list) => {
+    const text = list || 'Тут пусто';
+    const buttons = state === STATES.none ? mainKeyboard : exitFromModeKeyboard;
+
+    return ctx.replyWithHTML(text, buttons);
   });
+};
 
 export const onText = (ctx: BotContext) => {
   if (!ctx?.message || !('text' in ctx?.message) || !ctx.session) {
@@ -46,32 +52,56 @@ export const onText = (ctx: BotContext) => {
     case STATES.addingItem:
       return listUsecase
         .addItem(text)
-        .then(() => state.set(STATES.none))
-        .then(() => onGetList(ctx));
+        .then(listUsecase.getList)
+        .then((list) =>
+          ctx.replyWithHTML(
+            `Готово:\n\n${list}\n\nЧто еще добавим?`,
+            exitFromModeKeyboard,
+          ),
+        );
 
     case STATES.deletingItem:
       return listUsecase
         .deleteItem(text)
-        .then(() => state.set(STATES.none))
         .catch(() => {
-          ctx.reply(`Не могу найти элемент с номером "${text}"`, keyboard);
+          ctx.reply(`Не могу найти элемент с номером "${text}"`, mainKeyboard);
           return Promise.reject();
         })
-        .then(() => onGetList(ctx));
+        .then(listUsecase.getList)
+        .then((list) => {
+          if (!list) {
+            state.set(STATES.none);
+            return ctx.reply('Все удалено', mainKeyboard);
+          }
+
+          return ctx.replyWithHTML(
+            `Готово:\n\n${list}\n\nЧто еще удалим?`,
+            exitFromModeKeyboard,
+          );
+        });
 
     case STATES.none:
     default:
-      return ctx.reply(getDefaultMessage(firstName), keyboard);
+      return ctx.reply(getDefaultMessage(firstName), mainKeyboard);
   }
 };
 
-export const onDeleteItemStart = (ctx: BotContext) =>
-  ctx
-    .reply('Укажите номер пункта, который нужно удалить')
+export const onStartDeleting = (ctx: BotContext) => {
+  return ctx
+    .reply('Начинаем удалять, какой номер?', exitFromModeKeyboard)
     .then(() => ctx.session?.state.set(STATES.deletingItem));
+};
 
-export const onDeleteList = (ctx: BotContext) =>
-  listUsecase.deleteAll().then(() => ctx.reply('Все снесено', keyboard));
+export const onDeleteList = (ctx: BotContext) => {
+  return listUsecase
+    .deleteAll()
+    .then(() => ctx.reply('Все снесено', mainKeyboard));
+};
+
+export const onExitMode = (ctx: BotContext) => {
+  ctx.session.state.set(STATES.none);
+  return ctx.reply('Готово').then(() => onGetList(ctx));
+};
 
 export const onHelp = (ctx: BotContext) =>
   ctx.reply(HELP_COMMANDS.map((str) => `/${str}`).join('\n'));
