@@ -21,7 +21,7 @@ export const onStart = (ctx: BotContext) => {
 export const onStartAdding = (ctx: BotContext) => {
   ctx
     .reply('Что добавить?', exitFromModeKeyboard)
-    .then(() => ctx.session?.state.set(STATES.addingItem));
+    .then(() => ctx.session.state.set(STATES.addingItem));
 };
 
 export const onGetList = (ctx: BotContext) => {
@@ -80,6 +80,21 @@ export const onText = (ctx: BotContext) => {
           );
         });
 
+    case STATES.togglingItem:
+      return listUsecase
+        .toggleItem(text)
+        .catch(() => {
+          ctx.reply(`Не могу найти элемент с номером "${text}"`, mainKeyboard);
+          return Promise.reject();
+        })
+        .then(listUsecase.getList)
+        .then((list) =>
+          ctx.replyWithHTML(
+            `Готово:\n\n${list}\n\nЧто еще вычеркнем?`,
+            exitFromModeKeyboard,
+          ),
+        );
+
     case STATES.none:
     default:
       return ctx.reply(getDefaultMessage(firstName), mainKeyboard);
@@ -89,13 +104,19 @@ export const onText = (ctx: BotContext) => {
 export const onStartDeleting = (ctx: BotContext) => {
   return ctx
     .reply('Начинаем удалять, какой номер?', exitFromModeKeyboard)
-    .then(() => ctx.session?.state.set(STATES.deletingItem));
+    .then(() => ctx.session.state.set(STATES.deletingItem));
 };
 
 export const onDeleteList = (ctx: BotContext) => {
   return listUsecase
     .deleteAll()
     .then(() => ctx.reply('Все снесено', mainKeyboard));
+};
+
+export const onStartToggling = (ctx: BotContext) => {
+  return ctx
+    .reply('Начинаем выполнять, какой номер?', exitFromModeKeyboard)
+    .then(() => ctx.session.state.set(STATES.togglingItem));
 };
 
 export const onExitMode = (ctx: BotContext) => {

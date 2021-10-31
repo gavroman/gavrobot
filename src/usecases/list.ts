@@ -1,4 +1,4 @@
-import {GSPListStorage} from '../repositories/GSPList';
+import {GSPListStorage, ListItem} from '../repositories/GSPList';
 
 const List = new GSPListStorage();
 
@@ -8,14 +8,23 @@ export const alignNumber = (length: number, index: number): string => {
   return ' '.repeat(maxIndexStringLength - index.toString().length) + index;
 };
 
-const getList = (): Promise<string> =>
-  List.getAll().then((list) =>
-    list
-      ?.map((item, index) => {
-        return `<code>${alignNumber(list.length, index + 1)})</code> ${item}`;
-      })
-      .join('\n'),
-  );
+const formatList = (list: ListItem[]): string => {
+  console.log('list', list);
+
+  return list
+    .map(({value, done}, index) => {
+      const checkbox = done ? '🟢' : '🔴';
+      const item = done ? `<del>${value}</del>` : value;
+
+      return `<code>${alignNumber(
+        list.length,
+        index + 1,
+      )})</code>${checkbox} ${item}`;
+    })
+    .join('\n');
+};
+
+const getList = (): Promise<string> => List.getAll().then(formatList);
 
 const addItem = (text: string): Promise<any> => {
   const itemsToAdd = text
@@ -40,9 +49,19 @@ const deleteAll = (): Promise<any> => {
   return List.deleteAll();
 };
 
+const toggleItem = (text: string): Promise<any> => {
+  const index = parseInt(text);
+  if (Number.isInteger(index)) {
+    return List.toggle(index);
+  }
+
+  return Promise.reject();
+};
+
 export const listUsecase = {
   getList,
   addItem,
   deleteItem,
   deleteAll,
+  toggleItem,
 };

@@ -1,24 +1,32 @@
 import {GSPClient} from '../services/GoogleSpreadsheets';
 
+export interface ListItem {
+  value: string;
+  done: boolean;
+}
+
 export class GSPListStorage {
   private readonly spreadsheetId =
     '1QyXy3TR-yGeSRwofCDJuBEs-WuG2ZyQ_AWNsljnMnks';
-  private readonly column = 'A';
-  private readonly rowOffset = 2;
-  private readonly range = `${this.column}${this.rowOffset}:${this.column}`;
+  private readonly columnStart = 'A';
+  private readonly columnEnd = String.fromCharCode(
+    this.columnStart.charCodeAt(0) + 1,
+  );
+  private readonly rowOffset = 1;
+  private readonly range = `${this.columnStart}${this.rowOffset}:${this.columnEnd}`;
 
   private getAbsoluteIndex(listIndex: number): number {
     return listIndex + this.rowOffset - 1;
   }
 
   private getRange(index: number): string {
-    return `${this.column}${index}:${this.column}`;
+    return `${this.columnStart}${index}:${this.columnEnd}`;
   }
 
   add(items: string[]): ReturnType<typeof GSPClient['update']> {
     const {spreadsheetId} = this;
 
-    const values = items.map((item) => [item]);
+    const values = items.map((item) => [item, false]);
 
     return this.getAll().then(({length}) => {
       const lastItemPosition = this.getAbsoluteIndex(length);
@@ -59,10 +67,27 @@ export class GSPListStorage {
     return GSPClient.clear({spreadsheetId, range});
   }
 
-  getAll(): Promise<string[]> {
+  toggle(index: number): ReturnType<typeof GSPClient['update']> {
+    const {spreadsheetId} = this;
+    const updateItemRow = this.getAbsoluteIndex(index);
+    const updateRange = this.columnEnd + updateItemRow;
+    return GSPClient.update({
+      spreadsheetId,
+      range: updateRange,
+      valueInputOption: 'RAW',
+      requestBody: {
+        values: [[true]],
+      },
+    });
+  }
+
+  getAll(): Promise<ListItem[]> {
     const {spreadsheetId, range} = this;
     return GSPClient.read({spreadsheetId, range}).then(
-      ({data: {values}}) => values?.map((row) => row[0]) || [],
+      ({data: {values}}) =>
+        values?.map((row) => {
+          return {value: row[0], done: JSON.parse(row[1].toLowerCase())};
+        }) || [],
     );
   }
 }

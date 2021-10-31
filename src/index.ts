@@ -9,6 +9,7 @@ import {
   onStart,
   onStartAdding,
   onStartDeleting,
+  onStartToggling,
   onText,
 } from './handlers/list';
 import {BotContext, SessionData} from './interfaces';
@@ -37,12 +38,14 @@ bot.command(COMMANDS.addItem, onStartAdding);
 bot.command(COMMANDS.deleteItem, onStartDeleting);
 bot.command(COMMANDS.exitMode, onExitMode);
 bot.command(COMMANDS.deleteList, onDeleteList);
+bot.command(COMMANDS.toggleItem, onStartToggling);
 
 bot.hears(mapCommandToButton(COMMANDS.list), onGetList);
 bot.hears(mapCommandToButton(COMMANDS.addItem), onStartAdding);
 bot.hears(mapCommandToButton(COMMANDS.deleteItem), onStartDeleting);
 bot.hears(mapCommandToButton(COMMANDS.exitMode), onExitMode);
 bot.hears(mapCommandToButton(COMMANDS.deleteList), onDeleteList);
+bot.hears(mapCommandToButton(COMMANDS.toggleItem), onStartToggling);
 
 bot.on('text', onText);
 

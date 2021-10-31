@@ -3,6 +3,7 @@ export enum STATES {
   creatingList = 'CREATING_LIST',
   addingItem = 'ADDING_ITEM',
   deletingItem = 'DELETING_ITEM',
+  togglingItem = 'TOGGING_ITEM',
 }
 
 export class StateManager<T = STATES> {
