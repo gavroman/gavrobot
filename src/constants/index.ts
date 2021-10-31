@@ -10,11 +10,11 @@ export const HELP_COMMANDS = [
 ];
 
 export enum COMMANDS {
-    list = 'list',
-    addItem = 'add_item',
-    deleteItem = 'delete_item',
-    deleteList = 'delete_list',
-    help = 'help',
+  list = 'list',
+  addItem = 'add_item',
+  deleteItem = 'delete_item',
+  deleteList = 'delete_list',
+  help = 'help',
 }
 
 export const BUTTONS: Record<Partial<COMMANDS>, string> = {
@@ -25,12 +25,15 @@ export const BUTTONS: Record<Partial<COMMANDS>, string> = {
   [COMMANDS.help]: '/help',
 };
 
-export const mapCommandToButton = (command: COMMANDS): string => BUTTONS[command];
+export const mapCommandToButton = (command: COMMANDS): string =>
+  BUTTONS[command];
 
-export const keyboard = Markup
-  .keyboard([
-    [mapCommandToButton(COMMANDS.addItem), mapCommandToButton(COMMANDS.deleteItem)],
-    [mapCommandToButton(COMMANDS.list), mapCommandToButton(COMMANDS.deleteList)],
-  ])
+export const keyboard = Markup.keyboard([
+  [
+    mapCommandToButton(COMMANDS.addItem),
+    mapCommandToButton(COMMANDS.deleteItem),
+  ],
+  [mapCommandToButton(COMMANDS.list), mapCommandToButton(COMMANDS.deleteList)],
+])
   .oneTime()
   .resize();

@@ -15,7 +15,6 @@ module.exports = {
     'plugin:prettier/recommended',
     'plugin:@typescript-eslint/recommended',
     'prettier',
-    'plugin:compat/recommended',
   ],
   parserOptions: {
     ecmaVersion: 12,
@@ -45,5 +44,9 @@ module.exports = {
         groups: [['^\\u0000'], ['^@?\\w'], ['^'], ['^\\.']],
       },
     ],
+    'no-shadow': 'off',
+    '@typescript-eslint/no-shadow': ['error'],
+    'no-useless-constructor': 'off', // see @typescript-eslint/no-useless-constructor
+    '@typescript-eslint/no-useless-constructor': 'error',
   },
 };

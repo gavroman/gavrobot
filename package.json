@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "compile": "rm -rf ./dist && tsc",
     "start": "npm run compile && env-cmd -f .env node dist/index.js",
